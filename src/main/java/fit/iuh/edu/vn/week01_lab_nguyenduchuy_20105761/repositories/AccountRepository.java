@@ -16,7 +16,10 @@ public class AccountRepository {
             Class.forName("org.mariadb.jdbc.Driver");
 
             try (Connection connection = DriverManager.getConnection(url, user, pass);
-                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM account WHERE account_id = ? AND password = ? ")) {
+                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM account " +
+                         "inner join grant_access on account.account_id = grant_access.account_id " +
+                         "inner join role on role.role_id = grant_access.role_id " +
+                         "WHERE account.account_id = ? AND account.password = ? ")) {
 
                 statement.setString(1, id);
                 statement.setString(2, password);
@@ -39,6 +42,42 @@ public class AccountRepository {
         }
 
         return account;
+    }
+    public boolean addAccount(String name, String pass, String email, String phone, String status) throws SQLException {
+        String sql = "INSERT INTO account (name, pass, email, phone, status) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(url, user, pass);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setString(2, pass);
+            stmt.setString(3, email);
+            stmt.setString(4, phone);
+            stmt.setString(5, status);
+            stmt.executeUpdate();
+        }
+        return true;
+    }
+    public boolean updateAccount(String id, String name, String pass, String email, String phone, String status) throws SQLException {
+        String sql = "UPDATE account SET name = ?, pass = ?, email = ?, phone = ?, status = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, pass);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setString(2, pass);
+            stmt.setString(3, email);
+            stmt.setString(4, phone);
+            stmt.setString(5, status);
+            stmt.setString(6, id);
+            stmt.executeUpdate();
+        }
+        return true;
+    }
+    public boolean deleteAccount(String id) throws SQLException {
+        String sql = "DELETE FROM account WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url, user, pass);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, id); // Xóa theo ID
+            stmt.executeUpdate();
+        }
+        return true;
     }
 
 }
