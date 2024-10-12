@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class AccountService {
     private final RoleRepository roleRepository;
@@ -23,9 +24,6 @@ public class AccountService {
         String id = request.getParameter("id");
         String password = request.getParameter("password");
 
-        System.out.println(id);
-        System.out.println(password);
-
         Account account = accountRepository.login(id, password);
 
         if (account != null) {
@@ -35,8 +33,33 @@ public class AccountService {
             session1.setAttribute("role", role);
             response.sendRedirect("dashboard.jsp");
         } else {
-            System.out.println("Login Failed");
             response.sendRedirect("login.jsp?error=Invalid credentials");
+        }
+    }
+    public void showAllAccounts(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+         ArrayList<Account> lstAcc = accountRepository.getAllAccount();
+         HttpSession session = request.getSession();
+         session.setAttribute("lstAcc", lstAcc);
+    }
+    public void addAccount(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+        String id = request.getParameter("accountID");
+        String name = request.getParameter("fullName");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String phone = request.getParameter("phone");
+
+        System.out.println("ID: " + id);
+        System.out.println("Full Name: " + name);
+        System.out.println("Password: " + password);
+        System.out.println("Email: " + email);
+        System.out.println("Phone: " + phone);
+
+        boolean result = accountRepository.addAccount(id, name, password, email, phone);
+        System.out.println(result);
+        if(result) {
+            response.getWriter().write("Success");
+        } else {
+            response.getWriter().write("Fail");
         }
     }
 }

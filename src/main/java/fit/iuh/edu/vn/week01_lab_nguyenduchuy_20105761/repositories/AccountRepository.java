@@ -3,6 +3,7 @@ package fit.iuh.edu.vn.week01_lab_nguyenduchuy_20105761.repositories;
 import fit.iuh.edu.vn.week01_lab_nguyenduchuy_20105761.entities.Account;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class AccountRepository {
     private static String url = "jdbc:mariadb://localhost:3306/mydb";
@@ -43,35 +44,42 @@ public class AccountRepository {
 
         return account;
     }
-    public boolean addAccount(String name, String pass, String email, String phone, String status) throws SQLException {
-        String sql = "INSERT INTO account (name, pass, email, phone, status) VALUES (?, ?, ?, ?, ?)";
+    public boolean addAccount(String id, String name, String pass, String email, String phone) throws SQLException {
+        String sql = "INSERT INTO account (account_id, full_name, password, email, phone) VALUES (?, ?, ?, ?, ?)";
+
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.setString(2, pass);
-            stmt.setString(3, email);
-            stmt.setString(4, phone);
-            stmt.setString(5, status);
+
+            stmt.setString(1, id);
+            stmt.setString(2, name);
+            stmt.setString(3, pass);
+            stmt.setString(4, email);
+            stmt.setString(5, phone);
+
             stmt.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return true;
     }
-    public boolean updateAccount(String id, String name, String pass, String email, String phone, String status) throws SQLException {
-        String sql = "UPDATE account SET name = ?, pass = ?, email = ?, phone = ?, status = ? WHERE id = ?";
+    public boolean updateAccount(String id, String name, String pass, String email, String phone, int status) throws SQLException {
+        String sql = "UPDATE account SET full_name = ?, password = ?, email = ?, phone = ?, status = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
             stmt.setString(2, pass);
             stmt.setString(3, email);
             stmt.setString(4, phone);
-            stmt.setString(5, status);
+            stmt.setInt(5, status);
             stmt.setString(6, id);
             stmt.executeUpdate();
         }
         return true;
     }
     public boolean deleteAccount(String id) throws SQLException {
-        String sql = "DELETE FROM account WHERE id = ?";
+        String sql = "DELETE FROM account WHERE account_id = ?";
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, id); // Xóa theo ID
@@ -79,6 +87,29 @@ public class AccountRepository {
         }
         return true;
     }
+    public ArrayList<Account> getAllAccount() throws SQLException {
+        ArrayList<Account> lstAcc = new ArrayList<>();
+        String sql = "SELECT * FROM Account";
 
+        try (Connection conn = DriverManager.getConnection(url, user, pass);
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Account account = new Account();
+                account.setId(rs.getString(1));
+                account.setFullName(rs.getString(2));
+                account.setPassword(rs.getString(3));
+                account.setEmail(rs.getString(4));
+                account.setPhone(rs.getString(5));
+                account.setStatus(rs.getInt(6));
+                lstAcc.add(account);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return lstAcc;
+    }
 }
 

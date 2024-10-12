@@ -27,10 +27,17 @@ public class ControlServlet extends HttpServlet {
             case "login":
                 try {
                     accountService.handleLogin(req, resp);
+                    accountService.showAllAccounts(req, resp);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
                 break;
+            case "addUser":
+                try{
+                    accountService.addAccount(req,resp);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
         }
 
     }
